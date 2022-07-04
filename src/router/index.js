@@ -1,14 +1,18 @@
+// createWebHistory： web端的history模式
+// createWebHashHistory：web端的hash模式
 import {
   createRouter,
   createWebHistory,
   createWebHashHistory,
 } from "vue-router";
 
+// 注·1：这种import导入，打包的时候，会被打包到一起，这样，首次加载页面太慢，需要使用 () => import()
 // import Home from "../pages/Home.vue";
 // import About from "../pages/About.vue";
 
-// 配置映射关系
+// 1、配置映射关系
 const routes = [
+  // 路由的默认路径
   {
     path: "/",
     redirect: "/home",
@@ -17,6 +21,8 @@ const routes = [
   {
     path: "/home",
     name: "home",
+    // 注·2：import()函数，返回的就是一个promise，webpack会自动进行分包。这样，该组件就是懒加载的了
+    // 指定webpack打包后的名字，/* webpackChunkName: "home-chunk" */
     component: () =>
       import(/* webpackChunkName: "home-chunk" */ "../pages/Home.vue"),
     meta: {
@@ -30,6 +36,7 @@ const routes = [
         redirect: "/home/message",
       },
       {
+        // 这里是不需要加/
         path: "message",
         component: () => import("../pages/HomeMessage.vue"),
       },
@@ -44,7 +51,9 @@ const routes = [
     name: "about",
     component: () => import("../pages/About.vue"),
   },
+
   {
+    // 动态路由，使用:username进行占位
     path: "/user/:username/id/:id",
     component: () => import("../pages/User.vue"),
   },
@@ -52,13 +61,14 @@ const routes = [
     path: "/login",
     component: () => import("../pages/Login.vue"),
   },
+  // 类似动态路由匹配，.代表任意字符 *代表0个/多个
   {
     path: "/:pathMatch(.*)",
     component: () => import("../pages/NotFound.vue"),
   },
 ];
 
-// 创建一个路由对象router
+// 2、创建一个路由对象router
 const router = createRouter({
   routes,
   history: createWebHistory(),
@@ -73,7 +83,7 @@ const categoryRoute = {
 // 添加顶级路由对象
 router.addRoute(categoryRoute);
 
-// 添加二级路由对象
+// 添加二级路由对象， 使用的是name属性
 router.addRoute("home", {
   path: "moment",
   component: () => import("../pages/HomeMoment.vue"),
@@ -90,6 +100,7 @@ let counter = 0;
  *    3.字符串: 路径, 跳转到对应的路径中
  *    4.对象: 类似于 router.push({path: "/login", query: ....})
  */
+// next() 4.x不推荐使用了
 router.beforeEach((to, from) => {
   console.log(`进行了${++counter}路由跳转`);
   // if (to.path.indexOf("/home") !== -1) {
@@ -103,4 +114,8 @@ router.beforeEach((to, from) => {
   }
 });
 
+// 3、将路由对象导出
 export default router;
+// 4、安装router
+// 5、使用<router-view>进行占位
+// 6、使用<router-link to='/home'>

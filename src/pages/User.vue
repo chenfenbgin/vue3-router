@@ -11,6 +11,8 @@
     created() {
       console.log(this.$route.params.username);
     },
+
+    // setup 中获取this.$route.params.username的方法，使用提供的hook -> useRoute()
     setup() {
       const route = useRoute();
       console.log(route.params.username);
